@@ -12,7 +12,7 @@ Would like to see how collaborators can improve the app.
   Essentially, the higher the entropy, the higher the number of possible combinations and corresponding number of short links we can create.
   however note that the number of possibilities is maximum at 31 (half the data set) and begins to reduce after this entropy value:
   
-  Possibilities        entropy
+  Possibilities                               entropy
   
   450883717216034179     30
   
