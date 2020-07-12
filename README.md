@@ -11,11 +11,17 @@ Would like to see how collaborators can improve the app.
 - Increasing this entropy by even a factor of 1 or 2 (i.e. from 6 to 7 or 8) adds another 491,796,152 or 3,381,098,545 to this possibility with the largest value possibility of 62 characters.
   Essentially, the higher the entropy, the higher the number of possible combinations and corresponding number of short links we can create.
   however note that the number of possibilities is maximum at 31 (half the data set) and begins to reduce after this entropy value:
+  
   Possibilities         entropy
+  
   450883717216034179     30
+  
   465428353255261088     31
+  
   450883717216034179     32
+  
   409894288378212890     33
+  
 
 - Application can be improved to automatically increase entropy based on the current entropy utilization and count of short links related to URL's domain or some other metric.
 
