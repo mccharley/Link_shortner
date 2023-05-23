@@ -29,3 +29,8 @@ Would like to see how collaborators can improve the app.
   $dataset[1] = $modify_URL -> shortfier_ID(6,$mysqli); // short link length
 
 -short link URL can be improved to not require the "/index.php?". I hope someone can help find a way to achieve this and improve on the cleanness of the final short link.
+
+
+
+*UPDATE:*
+- Currently in the process of porting this project into a nodejs app and adding several updates including recommendations for the current version.
