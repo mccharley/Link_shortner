@@ -1,5 +1,5 @@
 # Link_shortner
- a simple URL shortener to get you going.
+ A simple URL shortner which lets a web user shortern a weblink for easy probagation over protocols that place limits to lenght of user input
 
  Test your short link using the URL string:
  http://localhost/link_shortner/index.php?shortlink
