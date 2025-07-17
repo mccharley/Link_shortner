@@ -1,0 +1,34 @@
+{
+    "name": "linkshortener/app",
+    "description": "Modern URL Shortener with improved security and architecture",
+    "type": "project",
+    "require": {
+        "php": "^8.0",
+        "ext-pdo": "*",
+        "ext-redis": "*",
+        "predis/predis": "^2.0",
+        "monolog/monolog": "^3.0",
+        "vlucas/phpdotenv": "^5.4",
+        "firebase/php-jwt": "^6.0",
+        "ramsey/uuid": "^4.7",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "phpstan/phpstan": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LinkShortener\\": "src/",
+            "LinkShortener\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse src --level=8"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
