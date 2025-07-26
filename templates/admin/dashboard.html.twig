@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - LinkShortener Admin</title>
+    
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.0.0/dist/chart.min.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 2px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .bg-primary-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bg-success-gradient { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); }
+        .bg-warning-gradient { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .bg-info-gradient { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .btn-action {
+            padding: 6px 12px;
+            margin: 2px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-suspended { background: #f8d7da; color: #721c24; }
+        
+        .config-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: none;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 px-0">
+                <div class="sidebar">
+                    <div class="p-4">
+                        <h4 class="text-white mb-4">
+                            <i class="fas fa-link me-2"></i>
+                            LinkShortener
+                        </h4>
+                    </div>
+                    
+                    <nav class="nav flex-column px-3">
+                        <a href="/admin/dashboard" class="nav-link active">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                        </a>
+                        
+                        <a href="/admin/partners" class="nav-link">
+                            <i class="fas fa-users me-2"></i>
+                            Partners
+                        </a>
+                        
+                        <a href="/admin/advertisements" class="nav-link">
+                            <i class="fas fa-ad me-2"></i>
+                            Advertisements
+                        </a>
+                        
+                        <a href="/admin/analytics" class="nav-link">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Analytics
+                        </a>
+                        
+                        <a href="/admin/revenue" class="nav-link">
+                            <i class="fas fa-dollar-sign me-2"></i>
+                            Revenue
+                        </a>
+                        
+                        <a href="/admin/security" class="nav-link">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Security
+                        </a>
+                        
+                        <a href="/admin/config" class="nav-link">
+                            <i class="fas fa-cogs me-2"></i>
+                            Configuration
+                        </a>
+                        
+                        <a href="/admin/maintenance" class="nav-link">
+                            <i class="fas fa-tools me-2"></i>
+                            Maintenance
+                        </a>
+                        
+                        <hr class="my-3" style="border-color: rgba(255,255,255,0.2);">
+                        
+                        <a href="/admin/plans" class="nav-link">
+                            <i class="fas fa-layer-group me-2"></i>
+                            Subscription Plans
+                        </a>
+                        
+                        <a href="/admin/blacklist" class="nav-link">
+                            <i class="fas fa-ban me-2"></i>
+                            Blacklist
+                        </a>
+                        
+                        <a href="/admin/audit" class="nav-link">
+                            <i class="fas fa-history me-2"></i>
+                            Audit Log
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 main-content">
+                <div class="p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">{{ title }}</h2>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="text-muted">Last updated: </span>
+                                <span class="fw-bold">{{ "now"|date("Y-m-d H:i:s") }}</span>
+                            </div>
+                            <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt me-1"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-primary-gradient me-3">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0">{{ data.overview.active_partners|number_format }}</h3>
+                                        <p class="text-muted mb-0">Active Partners</p>
+                                        {% if data.overview.pending_partners > 0 %}
+                                            <small class="text-warning">+{{ data.overview.pending_partners }} pending</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-success-gradient me-3">
+                                        <i class="fas fa-link"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0">{{ data.overview.links_today|number_format }}</h3>
+                                        <p class="text-muted mb-0">Links Created Today</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-arrow-up"></i>
+                                            +12% vs yesterday
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-info-gradient me-3">
+                                        <i class="fas fa-mouse-pointer"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0">{{ data.overview.clicks_today|number_format }}</h3>
+                                        <p class="text-muted mb-0">Clicks Today</p>
+                                        <small class="text-info">
+                                            <i class="fas fa-chart-line"></i>
+                                            CTR: 8.5%
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="stats-icon bg-warning-gradient me-3">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0">${{ data.revenue_summary.revenue_30d|number_format(2) }}</h3>
+                                        <p class="text-muted mb-0">Revenue (30 days)</p>
+                                        <small class="text-success">
+                                            <i class="fas fa-arrow-up"></i>
+                                            +18% vs last month
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Row -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="config-section">
+                                <h5 class="mb-3">Revenue Trends</h5>
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="config-section">
+                                <h5 class="mb-3">System Health</h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Database</span>
+                                        <span class="badge bg-success">Healthy</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Redis Cache</span>
+                                        <span class="badge bg-success">Healthy</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Storage</span>
+                                        <span class="badge bg-warning">85% Full</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Stripe API</span>
+                                        <span class="badge bg-success">Connected</span>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6 class="mb-3">Quick Actions</h6>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="clearCache()">
+                                        <i class="fas fa-broom me-1"></i>
+                                        Clear Cache
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm" onclick="runMaintenance()">
+                                        <i class="fas fa-tools me-1"></i>
+                                        Run Maintenance
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm" onclick="exportConfig()">
+                                        <i class="fas fa-download me-1"></i>
+                                        Export Config
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Partners and Top Ads -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="config-section">
+                                <h5 class="mb-3">Recent Partners</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Plan</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for partner in data.recent_partners %}
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <strong>{{ partner.company_name }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">{{ partner.email }}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">{{ partner.plan_name|default('Free') }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="status-badge status-{{ partner.status }}">
+                                                        {{ partner.status|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-action btn-outline-primary" onclick="viewPartner('{{ partner.id }}')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-action btn-outline-warning" onclick="editPartner('{{ partner.id }}')">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="config-section">
+                                <h5 class="mb-3">Top Performing Ads</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>CTR</th>
+                                                <th>Revenue</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for ad in data.top_performing_ads %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ ad.title|slice(0, 30) }}{% if ad.title|length > 30 %}...{% endif %}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ ad.impressions|number_format }} impressions</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">{{ ad.ctr }}%</span>
+                                                </td>
+                                                <td>
+                                                    <strong>${{ ad.revenue|number_format(2) }}</strong>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-action btn-outline-primary" onclick="viewAd({{ ad.id }})">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </button>
+                                                    <button class="btn btn-action btn-outline-warning" onclick="editAd({{ ad.id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Alerts -->
+                    {% if data.security_alerts|length > 0 %}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="config-section">
+                                <h5 class="mb-3 text-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Security Alerts
+                                </h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Event</th>
+                                                <th>Severity</th>
+                                                <th>Time</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for alert in data.security_alerts %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ alert.event_type|title }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ alert.details.description|default('Security event detected') }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ alert.severity == 'critical' ? 'danger' : (alert.severity == 'high' ? 'warning' : 'info') }}">
+                                                        {{ alert.severity|title }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <small>{{ alert.created_at|date('Y-m-d H:i:s') }}</small>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-action btn-outline-primary" onclick="viewSecurityEvent({{ alert.id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-action btn-outline-success" onclick="resolveSecurityEvent({{ alert.id }})">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.0/dist/chart.min.js"></script>
+    
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Total Revenue',
+                    data: [1200, 1900, 3000, 2500, 3200, 3500, 4000, 3800, 4200, 4500, 4800, 5200],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Partner Earnings',
+                    data: [600, 950, 1500, 1250, 1600, 1750, 2000, 1900, 2100, 2250, 2400, 2600],
+                    borderColor: '#56ab2f',
+                    backgroundColor: 'rgba(86, 171, 47, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Dashboard Functions
+        function refreshDashboard() {
+            location.reload();
+        }
+        
+        function clearCache() {
+            if (confirm('Are you sure you want to clear all cache?')) {
+                fetch('/admin/maintenance/clear-cache', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ cache_type: 'all' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Cache cleared successfully!');
+                    } else {
+                        alert('Error clearing cache: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+            }
+        }
+        
+        function runMaintenance() {
+            if (confirm('Are you sure you want to run maintenance tasks?')) {
+                fetch('/admin/maintenance/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ task: 'cleanup_expired_links' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Maintenance completed successfully!');
+                    } else {
+                        alert('Error running maintenance: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+            }
+        }
+        
+        function exportConfig() {
+            window.open('/admin/config/export', '_blank');
+        }
+        
+        function viewPartner(partnerId) {
+            window.location.href = '/admin/partners/' + partnerId;
+        }
+        
+        function editPartner(partnerId) {
+            window.location.href = '/admin/partners/' + partnerId + '/edit';
+        }
+        
+        function viewAd(adId) {
+            window.location.href = '/admin/advertisements/' + adId + '/analytics';
+        }
+        
+        function editAd(adId) {
+            window.location.href = '/admin/advertisements/' + adId + '/edit';
+        }
+        
+        function viewSecurityEvent(eventId) {
+            window.location.href = '/admin/security/events/' + eventId;
+        }
+        
+        function resolveSecurityEvent(eventId) {
+            if (confirm('Mark this security event as resolved?')) {
+                fetch('/admin/security/events/' + eventId + '/resolve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error resolving event: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+            }
+        }
+        
+        // Auto-refresh dashboard every 5 minutes
+        setInterval(function() {
+            const now = new Date();
+            document.querySelector('[class*="Last updated"]').nextElementSibling.textContent = 
+                now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0') + ':' + 
+                String(now.getSeconds()).padStart(2, '0');
+        }, 300000); // 5 minutes
+    </script>
+</body>
+</html>
