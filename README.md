@@ -1,442 +1,316 @@
-# Modern Link Shortener v2.0
+# 🔗 LinkShortener API - Enhanced Partner System
 
-A secure, scalable, and feature-rich URL shortener built with modern PHP practices and comprehensive security measures.
+A comprehensive URL shortening platform with partner integration, revenue sharing, and advanced analytics. Features a complete admin panel for managing all aspects of the system without requiring backend access.
 
-## 🚀 Features
+## ✨ Features
 
-### Core Functionality
-- **URL Shortening**: Create short, memorable links from long URLs
-- **Custom Short Codes**: Allow users to create custom short codes
-- **Link Expiration**: Set expiration dates for temporary links
-- **Click Tracking**: Track clicks and generate analytics
-- **Link Management**: View, edit, and delete created links
+### 🎯 **Core Functionality**
+- **URL Shortening**: Generate short, branded links with custom aliases
+- **Partner System**: Complete partner onboarding and management
+- **Revenue Sharing**: CPM-based revenue distribution with detailed tracking
+- **Advertisement Integration**: Interstitial ads with configurable durations
+- **Analytics**: Comprehensive click tracking and performance metrics
+- **API Access**: RESTful API with OAuth 2.0 and API key authentication
 
-### Security Features
-- **CSRF Protection**: JWT-based CSRF tokens
-- **Rate Limiting**: Prevent abuse with configurable rate limits
-- **Input Sanitization**: Comprehensive input validation and sanitization
-- **SQL Injection Prevention**: Prepared statements throughout
-- **XSS Protection**: Output encoding and CSP headers
-- **IP Blocking**: Automatic blocking of suspicious IPs
-- **Security Headers**: Comprehensive security headers
+### 🛡️ **Security & Management**
+- **Admin Panel**: Holistic web-based administration interface
+- **Partner Blacklisting**: Automated and manual partner blocking
+- **Rate Limiting**: Configurable API request limits
+- **Multi-Factor Authentication**: TOTP and SMS-based 2FA
+- **Audit Logging**: Complete administrative action tracking
+- **Fraud Detection**: Advanced click and revenue fraud prevention
 
-### Performance Features
-- **Redis Caching**: Fast link resolution with Redis cache
-- **Database Optimization**: Proper indexing and query optimization
-- **Connection Pooling**: Efficient database connections
-- **Async Operations**: Non-blocking click count updates
+### 📊 **Analytics & Reporting**
+- **Real-time Dashboard**: Live metrics and performance charts
+- **Partner Analytics**: Individual partner performance tracking
+- **Revenue Reports**: Detailed financial reporting and forecasting
+- **Advertisement Analytics**: Campaign performance optimization
+- **Export Capabilities**: CSV, PDF, and Excel report generation
 
-### Modern Architecture
-- **PSR-4 Autoloading**: Modern PHP namespace structure
-- **Dependency Injection**: Clean service architecture
-- **Repository Pattern**: Separated data access layer
-- **Service Layer**: Business logic separation
-- **RESTful API**: Clean API endpoints
-- **Comprehensive Logging**: Structured logging with Monolog
+## 🚀 **One-Click Automated Deployment**
 
-## 📋 Requirements
+### Prerequisites
+- Linux, macOS, or Windows with WSL2
+- Internet connection for downloading dependencies
+- At least 4GB RAM and 10GB disk space
 
-- PHP 8.0 or higher
-- MySQL 8.0+ or MariaDB 10.4+
-- Redis 6.0+
-- Composer
-- Web server (Apache/Nginx)
+### 🎯 **Super Simple Deployment**
 
-### PHP Extensions
-- PDO
-- Redis
-- OpenSSL
-- JSON
-- cURL
-
-## 🛠️ Installation
-
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd link-shortener
-```
-
-### 2. Install Dependencies
-```bash
-composer install
-```
-
-### 3. Environment Configuration
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=linkshortener
-DB_USER=your_username
-DB_PASS=your_password
-
-# Redis Configuration
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
-
-# Application Configuration
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://yourdomain.com
-APP_SECRET=your-secret-key-here
-
-# Security
-JWT_SECRET=your-jwt-secret-here
-CSRF_TOKEN_LIFETIME=3600
-RATE_LIMIT_REQUESTS=100
-RATE_LIMIT_WINDOW=3600
-
-# Cache Configuration
-CACHE_DRIVER=redis
-CACHE_TTL=3600
-
-# Logging
-LOG_LEVEL=info
-LOG_FILE=logs/app.log
-
-# Short Link Configuration
-SHORT_CODE_LENGTH=6
-SHORT_CODE_ALPHABET=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-```
-
-### 4. Database Setup
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-### 5. Web Server Configuration
-
-#### Apache (.htaccess)
-```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
-```
-
-#### Nginx
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-    root /path/to/link-shortener/public;
-    index index.php;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
-```
-
-### 6. Set Permissions
-```bash
-chmod -R 755 .
-chmod -R 777 logs/
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_HOST` | Database host | localhost |
-| `DB_PORT` | Database port | 3306 |
-| `DB_NAME` | Database name | linkshortener |
-| `DB_USER` | Database username | - |
-| `DB_PASS` | Database password | - |
-| `REDIS_HOST` | Redis host | localhost |
-| `REDIS_PORT` | Redis port | 6379 |
-| `APP_URL` | Application URL | http://localhost |
-| `JWT_SECRET` | JWT secret key | - |
-| `RATE_LIMIT_REQUESTS` | Rate limit requests | 100 |
-| `RATE_LIMIT_WINDOW` | Rate limit window (seconds) | 3600 |
-| `SHORT_CODE_LENGTH` | Short code length | 6 |
-
-### Security Configuration
-
-#### Rate Limiting
-Configure rate limiting per IP address:
-```env
-RATE_LIMIT_REQUESTS=100  # Requests per window
-RATE_LIMIT_WINDOW=3600   # Window in seconds (1 hour)
-```
-
-#### CSRF Protection
-CSRF tokens are automatically generated and validated:
-```env
-CSRF_TOKEN_LIFETIME=3600  # Token lifetime in seconds
-```
-
-#### Short Code Configuration
-Customize short code generation:
-```env
-SHORT_CODE_LENGTH=6
-SHORT_CODE_ALPHABET=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-```
-
-## 🔌 API Endpoints
-
-### Authentication
-All API endpoints use CSRF tokens for security. Get a token first:
+Just run this single command and everything will be set up automatically:
 
 ```bash
-GET /api/csrf-token
+chmod +x deploy.sh && ./deploy.sh
 ```
 
-### Create Short Link
+**That's it!** The script will:
+- ✅ Detect your operating system
+- ✅ Install Docker and Docker Compose automatically
+- ✅ Generate SSL certificates
+- ✅ Create all configuration files
+- ✅ Set up the database with sample data
+- ✅ Configure Redis caching
+- ✅ Start all services
+- ✅ Provide you with access information
+
+### 📋 **What Gets Deployed**
+
+The automated deployment creates:
+
+#### **🐳 Docker Containers**
+- **Application Server**: PHP 8.2 + Apache with all extensions
+- **MySQL Database**: Optimized database with complete schema
+- **Redis Cache**: High-performance caching layer
+- **phpMyAdmin**: Database administration interface
+- **RedisInsight**: Redis administration interface
+
+#### **🔧 Services & Features**
+- **Admin Panel**: Complete administrative interface
+- **API Endpoints**: RESTful API with authentication
+- **Health Monitoring**: System health checks and metrics
+- **Automated Backups**: Daily database and file backups
+- **Cron Jobs**: Automated maintenance and cleanup tasks
+- **SSL/HTTPS**: Self-signed certificates (production-ready)
+
+## 🌐 **Access Your Application**
+
+After deployment completes, you can access:
+
+### **🏠 Main Application**
+- **HTTP**: http://localhost
+- **HTTPS**: https://localhost
+
+### **👨‍💼 Admin Panel**
+- **URL**: http://localhost/admin
+- **Username**: `admin`
+- **Password**: `password`
+- **Features**: Complete system management without backend access
+
+### **🗄️ Database Management**
+- **phpMyAdmin**: http://localhost:8081
+- **Credentials**: Provided in deployment output
+
+### **🔄 Cache Management**
+- **RedisInsight**: http://localhost:8082
+- **Connection**: Automatic setup included
+
+## 🛠️ **Management Commands**
+
+### **📊 Monitor Services**
 ```bash
-POST /api/links
-Content-Type: application/json
+# View running services
+docker-compose ps
 
-{
-    "url": "https://example.com",
-    "custom_code": "optional-custom-code",
-    "expires_at": "2024-12-31 23:59:59",
-    "csrf_token": "your-csrf-token"
-}
+# View logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f app
 ```
 
-### Get User Links
+### **🔄 Service Management**
 ```bash
-GET /api/links?page=1&limit=20
+# Restart all services
+docker-compose restart
+
+# Stop all services
+docker-compose down
+
+# Update and restart
+docker-compose build --no-cache && docker-compose up -d
 ```
 
-### Get Link Analytics
+### **💾 Backup & Restore**
 ```bash
-GET /api/links/{shortCode}
+# Backup database
+docker-compose exec mysql mysqldump -u linkshortener -p linkshortener_api > backup.sql
+
+# Access application container
+docker-compose exec app bash
+
+# View application logs
+docker-compose logs -f app
 ```
 
-### Delete Link
+## 🎛️ **Admin Panel Features**
+
+### **📊 Dashboard**
+- Real-time system metrics and health monitoring
+- Revenue trends and performance charts
+- Partner activity and top-performing advertisements
+- Security alerts and system notifications
+
+### **👥 Partner Management**
+- Partner status control (activate, suspend, ban)
+- Revenue share adjustment per partner
+- Permission management and access control
+- Detailed partner activity tracking
+
+### **📺 Advertisement Management**
+- Campaign creation with media upload support
+- Targeting options (geographic, demographic, behavioral)
+- Budget control and performance analytics
+- A/B testing and optimization tools
+
+### **⚙️ System Configuration**
+- **Advertisement Settings**: Duration, skip options, targeting, fraud protection
+- **Revenue Management**: Revenue share, payout settings, currency support
+- **Security Configuration**: Rate limiting, MFA, authentication requirements
+- **Link Management**: Custom aliases, bulk operations, QR codes, domain filtering
+- **Maintenance Settings**: Auto cleanup, data retention, backups, health monitoring
+
+### **🔐 Security Management**
+- Security event monitoring and alerts
+- Partner and domain blacklist management
+- Audit log tracking and analysis
+- Fraud detection and prevention
+
+## 🔧 **Configuration**
+
+### **Environment Variables**
+All configuration is managed through the `.env` file created during deployment:
+
 ```bash
-DELETE /api/links/{shortCode}
+# Edit configuration
+nano .env
+
+# Restart to apply changes
+docker-compose restart
 ```
 
-### System Statistics
+### **Key Settings to Update**
+- **Stripe API Keys**: For payment processing
+- **SMTP Settings**: For email functionality
+- **Domain Settings**: For production deployment
+- **SSL Certificates**: Replace self-signed certificates for production
+
+## 📚 **API Documentation**
+
+### **Authentication**
 ```bash
-GET /api/stats
+# API Key Authentication
+curl -H "Authorization: Bearer YOUR_API_KEY" http://localhost/api/v1/links
+
+# OAuth 2.0 (for partners)
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost/api/v1/analytics
 ```
 
-### Health Check
+### **Create Short Link**
 ```bash
-GET /health
+curl -X POST http://localhost/api/v1/links \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"url": "https://example.com", "custom_alias": "my-link"}'
 ```
 
-## 🏗️ Architecture
-
-### Directory Structure
-```
-link-shortener/
-├── public/
-│   ├── index.php          # Front controller
-│   └── app.html           # Frontend application
-├── src/
-│   ├── Config/            # Configuration classes
-│   ├── Controllers/       # HTTP controllers
-│   ├── Models/            # Data models
-│   ├── Repositories/      # Data access layer
-│   └── Services/          # Business logic
-├── database/
-│   └── schema.sql         # Database schema
-├── logs/                  # Application logs
-├── tests/                 # Unit tests
-├── composer.json          # Dependencies
-└── .env.example           # Environment template
-```
-
-### Service Architecture
-
-```mermaid
-graph TB
-    A[Frontend] --> B[LinkController]
-    B --> C[LinkService]
-    C --> D[UrlValidatorService]
-    C --> E[ShortCodeGeneratorService]
-    C --> F[SecurityService]
-    C --> G[LinkRepository]
-    G --> H[Database]
-    C --> I[Cache]
-    I --> J[Redis]
-```
-
-### Security Layers
-
-1. **Input Validation**: All inputs are validated and sanitized
-2. **CSRF Protection**: JWT-based CSRF tokens
-3. **Rate Limiting**: Redis-based rate limiting
-4. **SQL Injection Prevention**: Prepared statements only
-5. **XSS Protection**: Output encoding and CSP headers
-6. **Security Headers**: Comprehensive security headers
-7. **IP Blocking**: Automatic suspicious IP blocking
-
-## 📊 Monitoring
-
-### Logging
-Structured logging with different levels:
-- **DEBUG**: Detailed debug information
-- **INFO**: General information
-- **WARNING**: Warning conditions
-- **ERROR**: Error conditions
-- **CRITICAL**: Critical conditions
-
-### Health Checks
-Monitor application health:
+### **Get Analytics**
 ```bash
-curl http://yourdomain.com/health
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+  http://localhost/api/v1/analytics?period=30d
 ```
 
-### Performance Metrics
-- Database query performance
-- Cache hit rates
-- Response times
-- Error rates
+## 🏗️ **Architecture**
 
-## 🔒 Security Best Practices
+### **Technology Stack**
+- **Backend**: PHP 8.2, Apache, MySQL 8.0, Redis 7
+- **Frontend**: Bootstrap 5, Chart.js, Twig templating
+- **Infrastructure**: Docker, Docker Compose
+- **Monitoring**: Health checks, metrics, logging
 
-### Production Deployment
-1. **Environment Variables**: Never commit sensitive data
-2. **HTTPS Only**: Always use HTTPS in production
-3. **Database Security**: Use dedicated database user with minimal permissions
-4. **File Permissions**: Restrict file permissions appropriately
-5. **Regular Updates**: Keep dependencies updated
-6. **Monitoring**: Monitor for suspicious activity
+### **Security Features**
+- **Encryption**: All sensitive data encrypted at rest and in transit
+- **Authentication**: Multi-factor authentication, API keys, OAuth 2.0
+- **Rate Limiting**: Configurable request limits per partner
+- **Audit Logging**: Complete administrative action tracking
+- **Fraud Detection**: Advanced click and revenue fraud prevention
 
-### Security Headers
-The application automatically sets security headers:
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: DENY`
-- `X-XSS-Protection: 1; mode=block`
-- `Strict-Transport-Security`
-- `Content-Security-Policy`
-- `Referrer-Policy`
+## 📖 **Documentation**
 
-## 🚀 Performance Optimization
+Comprehensive documentation is included:
+- **API Documentation**: `API_DOCUMENTATION.md`
+- **Service Flows**: `SERVICE_FLOWS_DOCUMENTATION.md`
+- **Architecture**: `ENHANCED_ARCHITECTURE_DOCUMENTATION.md`
+- **Admin Panel**: `ADMIN_PANEL_DOCUMENTATION.md`
 
-### Caching Strategy
-- **Redis Cache**: Link resolution caching
-- **Database Query Cache**: Expensive query caching
-- **CDN**: Static asset delivery
+## 🔒 **Security Best Practices**
 
-### Database Optimization
-- **Proper Indexing**: Optimized database indexes
-- **Connection Pooling**: Efficient connection management
-- **Query Optimization**: Optimized SQL queries
+### **Immediate Actions After Deployment**
+1. **Change Default Password**: Update admin password immediately
+2. **Update API Keys**: Configure Stripe and other service API keys
+3. **Configure SMTP**: Set up email service for notifications
+4. **SSL Certificates**: Replace self-signed certificates for production
+5. **Firewall Rules**: Configure appropriate firewall rules
 
-### Scalability
-- **Horizontal Scaling**: Stateless architecture
-- **Load Balancing**: Multiple application servers
-- **Database Sharding**: For very high traffic
+### **Production Considerations**
+- Use environment-specific `.env` files
+- Implement proper SSL certificates (Let's Encrypt)
+- Configure monitoring and alerting
+- Set up automated backups to external storage
+- Review and update security settings regularly
 
-## 🧪 Testing
+## 🚨 **Troubleshooting**
 
-### Unit Tests
+### **Common Issues**
+
+#### **Services Won't Start**
 ```bash
-composer test
+# Check Docker status
+docker --version
+docker-compose --version
+
+# Check logs
+docker-compose logs
+
+# Rebuild containers
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
 ```
 
-### Static Analysis
+#### **Permission Issues**
 ```bash
-composer analyse
+# Fix permissions
+sudo chown -R $USER:$USER .
+chmod -R 755 storage logs
 ```
 
-### Load Testing
-Use tools like Apache Bench or Artillery for load testing:
+#### **Database Connection Issues**
 ```bash
-ab -n 1000 -c 10 http://yourdomain.com/api/links
+# Check MySQL container
+docker-compose logs mysql
+
+# Reset database
+docker-compose down -v
+docker-compose up -d
 ```
 
-## 🔧 Maintenance
+## 📞 **Support**
 
-### Cleanup Expired Links
-Run the cleanup procedure regularly:
-```sql
-CALL CleanupExpiredLinks();
-```
+### **Getting Help**
+- Check the comprehensive documentation files
+- Review Docker Compose logs for error details
+- Ensure all prerequisites are met
+- Verify firewall and network settings
 
-### Log Rotation
-Logs are automatically rotated. Configure log retention:
-```env
-LOG_LEVEL=info
-LOG_FILE=logs/app.log
-```
+### **System Requirements**
+- **Minimum**: 2GB RAM, 5GB disk space
+- **Recommended**: 4GB RAM, 20GB disk space
+- **Production**: 8GB+ RAM, 50GB+ disk space
 
-### Database Maintenance
-Regular maintenance tasks:
-```sql
-OPTIMIZE TABLE links;
-ANALYZE TABLE links;
-```
+## 🎉 **Success!**
 
-## 🤝 Contributing
+Your LinkShortener API is now fully deployed and ready to use! The system includes:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+✅ **Complete Partner Management System**  
+✅ **Revenue Sharing with Analytics**  
+✅ **Advertisement Campaign Management**  
+✅ **Comprehensive Admin Panel**  
+✅ **RESTful API with Authentication**  
+✅ **Real-time Monitoring and Health Checks**  
+✅ **Automated Backups and Maintenance**  
+✅ **Security Features and Fraud Protection**  
 
-## 📄 License
+**No manual configuration required** - everything is set up and ready to go!
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+---
 
-## 🆘 Support
-
-For support, please:
-1. Check the documentation
-2. Search existing issues
-3. Create a new issue with detailed information
-
-## 🗺️ Roadmap
-
-### Upcoming Features
-- [ ] User authentication system
-- [ ] Advanced analytics dashboard
-- [ ] Bulk link operations
-- [ ] QR code generation
-- [ ] API rate limiting per user
-- [ ] Link preview functionality
-- [ ] Custom domains
-- [ ] Link categories/tags
-- [ ] Export functionality
-
-### Performance Improvements
-- [ ] Database sharding
-- [ ] CDN integration
-- [ ] Advanced caching strategies
-- [ ] Background job processing
-
-## 📈 Changelog
-
-### v2.0.0
-- Complete rewrite with modern PHP practices
-- Added comprehensive security features
-- Implemented caching with Redis
-- Added rate limiting and CSRF protection
-- Improved database schema with analytics
-- Modern responsive frontend
-- RESTful API architecture
-- Comprehensive logging and monitoring
-
-### v1.0.0
-- Initial release
-- Basic URL shortening functionality
-- Simple PHP implementation
+**Happy Link Shortening! 🚀**
