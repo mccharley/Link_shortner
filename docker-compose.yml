@@ -1,0 +1,251 @@
+version: '3.8'
+
+services:
+  # Main Application Container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkshortener-app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_logs:/var/www/html/logs
+      - app_backups:/var/www/html/backups
+      - ./docker/ssl:/etc/ssl/certs/linkshortener:ro
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://localhost
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=linkshortener_api
+      - DB_USER=linkshortener
+      - DB_PASS=secure_password_2024
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis_password_2024
+      - JWT_SECRET=your-super-secure-jwt-secret-key-here-2024
+      - SESSION_SECRET=your-super-secure-session-secret-key-here-2024
+      - ENCRYPTION_KEY=your-super-secure-encryption-key-here-2024
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - linkshortener-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: linkshortener-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_2024
+      MYSQL_DATABASE: linkshortener_api
+      MYSQL_USER: linkshortener
+      MYSQL_PASSWORD: secure_password_2024
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/enhanced_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./docker/mysql/init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - linkshortener-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_2024"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: linkshortener-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis_password_2024 --appendonly yes --appendfsync everysec
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - linkshortener-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis_password_2024", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Nginx Load Balancer (Optional - for production scaling)
+  nginx:
+    image: nginx:alpine
+    container_name: linkshortener-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/ssl:/etc/ssl/certs:ro
+      - app_logs:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - linkshortener-network
+    profiles:
+      - production
+
+  # Database Administration (phpMyAdmin)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: linkshortener-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password_2024
+      MYSQL_ROOT_PASSWORD: root_password_2024
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - linkshortener-network
+    profiles:
+      - development
+
+  # Redis Administration (RedisInsight)
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: linkshortener-redis-insight
+    restart: unless-stopped
+    ports:
+      - "8082:8001"
+    volumes:
+      - redis_insight_data:/db
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - linkshortener-network
+    profiles:
+      - development
+
+  # Background Job Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkshortener-worker
+    restart: unless-stopped
+    command: php scripts/worker.php
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_logs:/var/www/html/logs
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=linkshortener_api
+      - DB_USER=linkshortener
+      - DB_PASS=secure_password_2024
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis_password_2024
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - linkshortener-network
+    profiles:
+      - production
+
+  # Monitoring (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: linkshortener-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - linkshortener-network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: linkshortener-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password_2024
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - linkshortener-network
+    profiles:
+      - monitoring
+
+# Named Volumes
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  redis_insight_data:
+    driver: local
+  app_storage:
+    driver: local
+  app_logs:
+    driver: local
+  app_backups:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# Networks
+networks:
+  linkshortener-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

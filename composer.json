@@ -1,21 +1,43 @@
 {
-    "name": "linkshortener/app",
-    "description": "Modern URL Shortener with improved security and architecture",
+    "name": "linkshortener/api",
+    "description": "Enhanced URL Shortener with Partner API and Revenue Sharing",
     "type": "project",
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
         "ext-redis": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
         "predis/predis": "^2.0",
         "monolog/monolog": "^3.0",
         "vlucas/phpdotenv": "^5.4",
         "firebase/php-jwt": "^6.0",
         "ramsey/uuid": "^4.7",
-        "guzzlehttp/guzzle": "^7.0"
+        "guzzlehttp/guzzle": "^7.0",
+        "stripe/stripe-php": "^10.0",
+        "phpmailer/phpmailer": "^6.8",
+        "pragmarx/google2fa": "^8.0",
+        "endroid/qr-code": "^4.8",
+        "league/oauth2-server": "^8.5",
+        "twig/twig": "^3.0",
+        "symfony/http-foundation": "^6.0",
+        "symfony/routing": "^6.0",
+        "symfony/console": "^6.0",
+        "doctrine/dbal": "^3.6",
+        "respect/validation": "^2.2",
+        "intervention/image": "^2.7",
+        "league/flysystem": "^3.0",
+        "spatie/async": "^1.5",
+        "maxmind/web-service-common": "^0.8",
+        "jenssegers/agent": "^2.6"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
-        "phpstan/phpstan": "^1.0"
+        "phpstan/phpstan": "^1.0",
+        "squizlabs/php_codesniffer": "^3.7",
+        "mockery/mockery": "^1.5",
+        "fakerphp/faker": "^1.21"
     },
     "autoload": {
         "psr-4": {
@@ -25,10 +47,24 @@
     },
     "scripts": {
         "test": "phpunit",
-        "analyse": "phpstan analyse src --level=8"
+        "analyse": "phpstan analyse src --level=8",
+        "cs-check": "phpcs --standard=PSR12 src/",
+        "cs-fix": "phpcbf --standard=PSR12 src/",
+        "post-install-cmd": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "setup": [
+            "composer install",
+            "@php scripts/setup.php"
+        ]
     },
     "config": {
         "optimize-autoloader": true,
-        "sort-packages": true
-    }
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
